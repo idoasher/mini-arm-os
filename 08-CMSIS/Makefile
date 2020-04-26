@@ -6,7 +6,6 @@ CORTEX_M4 := -mcpu=cortex-m4
 CFLAGS = -fno-common -ffreestanding -O0 -std=gnu99 \
 	 	 -gdwarf-2 -g3 -Wall -Werror \
 	 	 -mthumb 
-
 #devices vendor
 STM32 := STM32
 
@@ -27,12 +26,19 @@ include rules.mk
 $(eval $(call eval_all_variable,$(STM32P103_DEVICE),$(STM32)))
 $(eval $(call eval_all_variable,$(STM32F429_DEVICE),$(STM32)))
 
+RUST_TARGET_TRIPLE := thumbv7m-none-eabi
+
 
 define build_command
 	mkdir -p $($(1)_RELEASE_DIR)
+	cargo build --manifest-path=$(RUST_TASK_DIR)/Cargo.toml --release --target $(RUST_TARGET_TRIPLE)
+	cp $(RUST_TASK_BINARY_LOCATION)/$(RUST_TASK_BINARY) $($(1)_RELEASE_DIR)
+	# cbindgen -l C --crate $(RUST_TASK_CRATE_NAME) -o $(CORE_HEADER_DIR)/$(RUST_TASK_CRATE_NAME).h \
+	# 	$(RUST_TASK_DIR)
 	$(CC) $(CFLAGS) $($(1)_CPU) -Wl,-T$($(1)_TARGET_ld) -nostartfiles \
 		  $(addprefix -I,$($(1)_INC_DIR)) \
-		  $(CORE_SOURCE) $($(1)_DEPENDENT_SOURCE) -o $($(1)_TARGET_elf)
+		  -L $($(1)_RELEASE_DIR) $(CORE_SOURCE) $($(1)_DEPENDENT_SOURCE) \
+		  -l$(RUST_TASK_CRATE_NAME) -o $($(1)_TARGET_elf)
 	$(CROSS_COMPILE)objcopy -Obinary $($(1)_TARGET_elf) $($(1)_TARGET_bin)
 	$(CROSS_COMPILE)objdump -S $($(1)_TARGET_elf) > $($(1)_TARGET_dump)
 endef
@@ -94,4 +100,5 @@ astyle:
 
 clean:
 	rm -rf $(RELEASE_DIR)
-
+	cargo clean --manifest-path=$(RUST_TASK_DIR)/Cargo.toml 
+	# rm $(CORE_HEADER_DIR)/$(RUST_TASK_CRATE_NAME).h 

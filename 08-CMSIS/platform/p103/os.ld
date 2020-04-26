@@ -19,8 +19,14 @@ SECTIONS
 		_eromdev = .;
 		_sidata = .;
 	} >FLASH
+	
+	/DISCARD/ :
+	{
+    		*(.ARM.exidx*)
+    		*(.gnu.linkonce.armexidx.*)
+	} >FLASH
 
-	.data : AT(_sidata)
+	.data : AT( _sidata )
 	{
 		_sdata = .;
 		*(.data)

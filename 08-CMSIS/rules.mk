@@ -6,8 +6,12 @@ INC_DIR          := include
 SRC_DIR          := src
 CORE_HEADER_DIR  := $(CORE_DIR)/$(INC_DIR)/
 
-CORE_SOURCE  := $(wildcard $(CORE_DIR)/$(SRC_DIR)/*.c)
+RUST_TASK_CRATE_NAME := mini_rust_task
+RUST_TASK_DIR  := $(CORE_DIR)/$(SRC_DIR)/$(RUST_TASK_CRATE_NAME)
+RUST_TASK_BINARY := lib$(RUST_TASK_CRATE_NAME).a
+RUST_TASK_BINARY_LOCATION  := $(RUST_TASK_DIR)/target/thumbv7m-none-eabi/release/
 
+CORE_SOURCE  := $(wildcard $(CORE_DIR)/$(SRC_DIR)/*.c)
 
 # Universal Devices Definition
 

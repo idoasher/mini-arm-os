@@ -4,6 +4,7 @@
 #include "systick.h"
 #include "threads.h"
 #include "stream.h"
+#include "mini_rust_task.h"
 
 #define puts(x) do {                       \
                    stream_write(USART,x);  \
@@ -37,7 +38,7 @@ void test2(void *userdata)
 
 void test3(void *userdata)
 {
-	busy_loop(userdata);
+	rust_task();
 }
 
 int main(void)
